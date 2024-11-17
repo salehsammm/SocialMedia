@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SocialMedia.Data;
 using System.Diagnostics;
 
 namespace SocialMedia.Controllers
@@ -6,15 +8,21 @@ namespace SocialMedia.Controllers
 	public class HomeController : Controller
 	{
 		private readonly ILogger<HomeController> _logger;
+		private readonly AppDbContext _context;
 
-		public HomeController(ILogger<HomeController> logger)
+		public HomeController(ILogger<HomeController> logger , AppDbContext context)
 		{
 			_logger = logger;
+			_context = context;
 		}
 
-		public IActionResult Index()
+		public async Task<IActionResult> Index()
 		{
-			return View();
+			var allPosts = await _context.Posts
+				.Include(p => p.User)
+				.ToListAsync();
+
+			return View(allPosts);
 		}
 	}
 }
